@@ -15,41 +15,49 @@ times = 100000
 #Initializing variables
 hits = 0
 fails = 0
+artenergy = 0
 hitslist = []
 success = False
 
 for i in range(times):
     while not success:
-        if random.random() < chance + (ech * fails): #If honing success, move on
-            success = True
-        else: #If honing fail, increment fails
-            fails += 1 
         hits += 1
+
+        actualchance = chance + (ech * fails)
+        if random.random() < actualchance or artenergy >= 100: #If honing success, move on
+            success = True
+
+        else: #If honing fail, increment fails
+            artenergy += (actualchance * 100) / 2.15
+            fails += 1 
     
     #Add success to list and reset
-    bisect.insort(hitslist, hits)
+    hitslist.append(hits)
     hits = 0
     fails = 0
+    artenergy = 0
     success = False
 
 #Generating numbers to show user
+hitslist.sort()
+
 avg = str(statistics.mean(hitslist))
 median = str(statistics.median(hitslist))
 
-fq = times // 4
-tq = 3 * fq
-quarterpt = str(hitslist[fq])
-seventyfivept = str(hitslist[tq])
+fq = times // 5
+tq = 4 * fq
+fifthpt = str(hitslist[fq])
+eightypt = str(hitslist[tq])
 
-worst = str(hitslist[-1])
 best = str(hitslist[0])
+worst = str(hitslist[-1])
 
 #Show user statistics
-print("Expect between " + quarterpt + " to " + seventyfivept + " honing attempts per item, " + avg + " on average.")
+print("Expect between " + fifthpt + " to " + eightypt + " honing attempts per item, " + avg + " on average.")
 print()
 print("Hits mean: " + avg)
 print("Hits median: " + median)
-print("First quartile (25%): " + quarterpt)
-print("Third quartile (75%): " + seventyfivept)
+print("Top 20% luck: " + fifthpt)
+print("Bottom 80% luck: " + eightypt)
 print("Best: " + best)
 print("Worst: " + worst)
